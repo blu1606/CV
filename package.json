@@ -1,0 +1,23 @@
+{
+  "name": "cv-match",
+  "version": "1.0.0",
+  "description": "AI-powered CV generation platform for Digital Nomads",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.8"
+  },
+  "packageManager": "npm@10.9.0",
+  "engines": {
+    "node": ">=18"
+  }
+}
