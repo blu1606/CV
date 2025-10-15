@@ -1,9 +1,26 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
 import { Check, Sparkles } from "lucide-react"
+import { useState, useEffect } from "react"
 
 export default function PricingPage() {
+  const [blinkingCursors, setBlinkingCursors] = useState<Array<{ id: number; x: number; y: number }>>([])
+
+  // Generate random cursor positions
+  useEffect(() => {
+    const cursors = []
+    for (let i = 0; i < 6; i++) {
+      cursors.push({
+        id: i,
+        x: Math.random() * 80 + 10, // 10% to 90% of screen width
+        y: Math.random() * 70 + 15, // 15% to 85% of screen height
+      })
+    }
+    setBlinkingCursors(cursors)
+  }, [])
   return (
     <div className="min-h-screen bg-background">
       <section className="relative min-h-screen">
@@ -105,13 +122,20 @@ export default function PricingPage() {
 
       {/* FAQ / Details on grid background */}
       <section
-        className="relative py-20"
-        style={{
-          backgroundImage: "url('/tech-grid-bg.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        className="relative py-20 bg-terminal-bg"
       >
+        {/* Blinking Cursors */}
+        {blinkingCursors.map((cursor) => (
+          <div
+            key={cursor.id}
+            className="absolute w-px h-5 bg-orange-500 terminal-cursor"
+            style={{
+              left: `${cursor.x}%`,
+              top: `${cursor.y}%`,
+              animationDelay: `${cursor.id * 0.2}s`
+            }}
+          />
+        ))}
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
             <Card className="p-6 bg-background/80 backdrop-blur-sm border-2 border-foreground/20">
