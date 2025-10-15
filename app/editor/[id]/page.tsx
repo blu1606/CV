@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CVPreview } from "@/components/cv-preview"
 import { CVComponentItem } from "@/components/cv-component-item"
-import { Download, Save, BarChart3, Sparkles, Search } from "lucide-react"
+import { Save, BarChart3, Sparkles, Search } from "lucide-react"
+import { ExportPDF } from "@/components/export-pdf"
 import { Badge } from "@/components/ui/badge"
 
 export default function EditorPage() {
@@ -37,10 +38,7 @@ export default function EditorPage() {
               <span className="hidden sm:inline">Save</span>
             </Button>
 
-            <Button size="sm" className="gap-2">
-              <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">Export PDF</span>
-            </Button>
+            <ExportPDF />
           </div>
         </div>
       </div>

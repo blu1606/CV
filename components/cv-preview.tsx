@@ -7,9 +7,12 @@ import { GripVertical, X, Mail, Phone, MapPin, Linkedin } from "lucide-react"
 
 export function CVPreview() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative">
+      <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover rounded-lg">
+        <source src="/galaxy.mp4" type="video/mp4" />
+      </video>
       {/* CV Document Preview */}
-      <Card className="p-8 space-y-6 bg-white dark:bg-card text-foreground shadow-lg">
+      <Card className="relative z-10 p-8 space-y-6 bg-background/70 backdrop-blur-sm text-foreground shadow-lg">
         {/* Header */}
         <div className="space-y-3 border-b border-border pb-6">
           <h1 className="text-3xl font-bold text-foreground">John Doe</h1>
