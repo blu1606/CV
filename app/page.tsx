@@ -32,6 +32,9 @@ export default function LandingPage() {
                 <Link href="/dashboard" className="text-sm font-mono text-black hover:underline">
                   {"> NEW CV"}
                 </Link>
+                <Link href="/pricing" className="text-sm font-mono text-black hover:underline">
+                  {"> PRICING"}
+                </Link>
                 <Link href="/settings" className="text-sm font-mono text-black hover:underline">
                   {"> SETTINGS"}
                 </Link>
@@ -40,8 +43,9 @@ export default function LandingPage() {
                 variant="outline"
                 size="sm"
                 className="font-mono text-xs border-2 border-foreground/40 text-black hover:bg-foreground/10 bg-transparent"
+                asChild
               >
-                {"> OPEN MAGICV"}
+                <Link href="/auth/onboarding">{"> LOGIN"}</Link>
               </Button>
             </div>
           </header>
