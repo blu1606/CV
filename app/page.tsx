@@ -1,9 +1,26 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Sparkles, Zap, Target, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import { AnimatedCounter } from "@/components/animated-counter"
+import { useState, useEffect } from "react"
 
 export default function LandingPage() {
+  const [blinkingCursors, setBlinkingCursors] = useState<Array<{ id: number; x: number; y: number }>>([])
+
+  // Generate random cursor positions
+  useEffect(() => {
+    const cursors = []
+    for (let i = 0; i < 8; i++) {
+      cursors.push({
+        id: i,
+        x: Math.random() * 80 + 10, // 10% to 90% of screen width
+        y: Math.random() * 70 + 15, // 15% to 85% of screen height
+      })
+    }
+    setBlinkingCursors(cursors)
+  }, [])
   return (
     <div className="min-h-screen bg-background">
       <section className="relative min-h-screen">
@@ -133,13 +150,20 @@ export default function LandingPage() {
       </section>
 
       <section
-        className="relative min-h-screen flex items-center justify-center"
-        style={{
-          backgroundImage: "url('/tech-grid-bg.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        className="relative min-h-screen flex items-center justify-center bg-terminal-bg"
       >
+        {/* Blinking Cursors */}
+        {blinkingCursors.map((cursor) => (
+          <div
+            key={cursor.id}
+            className="absolute w-px h-5 bg-orange-500 terminal-cursor"
+            style={{
+              left: `${cursor.x}%`,
+              top: `${cursor.y}%`,
+              animationDelay: `${cursor.id * 0.2}s`
+            }}
+          />
+        ))}
         <div className="container mx-auto px-4 py-20">
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <div className="inline-block px-4 py-1 bg-orange-accent text-background text-xs font-mono mb-4">
@@ -260,13 +284,20 @@ export default function LandingPage() {
       </section>
 
       <section
-        className="relative min-h-screen flex items-center"
-        style={{
-          backgroundImage: "url('/tech-grid-bg.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        className="relative min-h-screen flex items-center bg-terminal-bg"
       >
+        {/* Blinking Cursors */}
+        {blinkingCursors.map((cursor) => (
+          <div
+            key={`second-${cursor.id}`}
+            className="absolute w-px h-5 bg-orange-500 terminal-cursor"
+            style={{
+              left: `${cursor.x}%`,
+              top: `${cursor.y}%`,
+              animationDelay: `${(cursor.id + 4) * 0.2}s`
+            }}
+          />
+        ))}
         <div className="container mx-auto px-4 py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
             <div className="space-y-8">
