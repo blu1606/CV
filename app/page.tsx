@@ -162,7 +162,7 @@ export default function LandingPage() {
               </div>
 
               <div className="grid md:grid-cols-3 gap-6">
-                <div className="border-2 border-foreground/20 p-8 space-y-4 hover:border-orange-accent transition-colors bg-background/10 backdrop-blur-sm">
+                <div className="border-2 border-black p-8 space-y-4 hover:border-orange-accent transition-colors bg-transparent backdrop-blur-sm">
                   <div className="w-12 h-12 border-2 border-orange-accent flex items-center justify-center">
                     <Zap className="w-6 h-6 text-orange-accent" />
                   </div>
@@ -172,7 +172,7 @@ export default function LandingPage() {
                   </p>
                 </div>
 
-                <div className="border-2 border-foreground/20 p-8 space-y-4 hover:border-orange-accent transition-colors bg-background/10 backdrop-blur-sm">
+                <div className="border-2 border-black p-8 space-y-4 hover:border-orange-accent transition-colors bg-transparent backdrop-blur-sm">
                   <div className="w-12 h-12 border-2 border-orange-accent flex items-center justify-center">
                     <Target className="w-6 h-6 text-orange-accent" />
                   </div>
@@ -182,7 +182,7 @@ export default function LandingPage() {
                   </p>
                 </div>
 
-                <div className="border-2 border-foreground/20 p-8 space-y-4 hover:border-orange-accent transition-colors bg-background/10 backdrop-blur-sm">
+                <div className="border-2 border-black p-8 space-y-4 hover:border-orange-accent transition-colors bg-transparent backdrop-blur-sm">
                   <div className="w-12 h-12 border-2 border-orange-accent flex items-center justify-center">
                     <BarChart3 className="w-6 h-6 text-orange-accent" />
                   </div>
@@ -192,7 +192,7 @@ export default function LandingPage() {
                   </p>
                 </div>
 
-                <div className="border-2 border-foreground/20 p-8 space-y-4 hover:border-orange-accent transition-colors bg-background/10 backdrop-blur-sm">
+                <div className="border-2 border-black p-8 space-y-4 hover:border-orange-accent transition-colors bg-transparent backdrop-blur-sm">
                   <div className="w-12 h-12 border-2 border-orange-accent flex items-center justify-center">
                     <Sparkles className="w-6 h-6 text-orange-accent" />
                   </div>
@@ -202,7 +202,7 @@ export default function LandingPage() {
                   </p>
                 </div>
 
-                <div className="border-2 border-foreground/20 p-8 space-y-4 hover:border-orange-accent transition-colors bg-background/10 backdrop-blur-sm">
+                <div className="border-2 border-black p-8 space-y-4 hover:border-orange-accent transition-colors bg-transparent backdrop-blur-sm">
                   <div className="w-12 h-12 border-2 border-orange-accent flex items-center justify-center">
                     <svg className="w-6 h-6 text-orange-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
@@ -219,7 +219,7 @@ export default function LandingPage() {
                   </p>
                 </div>
 
-                <div className="border-2 border-foreground/20 p-8 space-y-4 hover:border-orange-accent transition-colors bg-background/10 backdrop-blur-sm">
+                <div className="border-2 border-black p-8 space-y-4 hover:border-orange-accent transition-colors bg-transparent backdrop-blur-sm">
                   <div className="w-12 h-12 border-2 border-orange-accent flex items-center justify-center">
                     <svg className="w-6 h-6 text-orange-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
