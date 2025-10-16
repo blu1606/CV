@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Sparkles, Zap, Target, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import { AnimatedCounter } from "@/components/animated-counter"
+import { LinkedInSignIn } from "@/components/linkedin-signin"
 
 export default function LandingPage() {
   return (
@@ -67,13 +68,7 @@ export default function LandingPage() {
                   for any application.
                 </p>
 
-                <Button
-                  size="lg"
-                  className="font-mono text-sm border-2 border-foreground/40 bg-transparent text-black hover:bg-foreground/10 h-12 px-6"
-                  variant="outline"
-                >
-                  {"> GET STARTED WITH LINKEDIN"}
-                </Button>
+                <LinkedInSignIn />
               </div>
 
               <div className="space-y-6">

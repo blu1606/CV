@@ -1,53 +1,156 @@
-# magiCV – Run Instructions
+# 🎯 MagiCV - AI-Powered CV Builder
 
-## Prerequisites
-- Node.js 18.18+ (or 20+ recommended)
-- npm 9+
+> Transform your LinkedIn profile into tailored CVs with AI matching
 
-Verify versions:
+[![Next.js](https://img.shields.io/badge/Next.js-15.2-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20DB-green)](https://supabase.com/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-OAuth-0077B5)](https://www.linkedin.com/)
+
+## ✨ Features
+
+- 🔐 **LinkedIn OAuth** - Sign in and sync your professional data
+- 🤖 **AI Matching** - Analyze job descriptions and match your experience
+- 📝 **Component Library** - Reusable CV components (experience, skills, projects)
+- 🎨 **Multiple Templates** - Choose from professional CV designs
+- 📊 **Match Scoring** - See how well your CV matches job requirements
+- 🔄 **Real-time Sync** - Keep your data up-to-date with LinkedIn
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18.18+ 
+- npm 9+ or pnpm
+- Supabase account
+- LinkedIn OAuth credentials
+
+### Installation
+
 ```bash
-node -v
-npm -v
-```
+# Clone repository
+git clone https://github.com/blu1606/CV.git
+cd CV
 
-## Install dependencies
-On Windows PowerShell (to avoid React 19 peer warnings):
-```bash
-npm install --no-audit --no-fund --legacy-peer-deps
-```
+# Install dependencies
+npm install --legacy-peer-deps
 
-## Start the development server
-```bash
+# Setup environment variables
+cp .env.example .env
+# Edit .env with your credentials
+
+# Run database migrations (see docs/QUICK_START.md)
+
+# Start development server
 npm run dev
 ```
-Then open `http://localhost:3000`.
 
-## Build for production
+Open [http://localhost:3000](http://localhost:3000)
+
+## 📚 Documentation
+
+- **[Quick Start Guide](./docs/QUICK_START.md)** - Complete setup walkthrough
+- **[LinkedIn Auth Guide](./docs/LINKEDIN_AUTH_GUIDE.md)** - OAuth implementation details
+- **[Data Integration](./docs/DATA_INTEGRATION.md)** - Database and data layer
+- **[Architecture](./docs/architecture.md)** - System design and tech stack
+
+## 🛠️ Tech Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Language:** TypeScript
+- **Database:** PostgreSQL via Supabase
+- **Authentication:** Supabase Auth + LinkedIn OAuth
+- **Styling:** Tailwind CSS 4.0
+- **UI Components:** shadcn/ui + Radix UI
+- **Deployment:** Vercel
+
+## 📁 Project Structure
+
+```
+├── app/                    # Next.js app directory
+│   ├── auth/              # Authentication pages
+│   ├── dashboard/         # Main dashboard
+│   ├── components/        # Component library page
+│   ├── editor/            # CV editor
+│   └── settings/          # User settings
+├── components/            # React components
+│   └── ui/               # shadcn/ui components
+├── lib/
+│   ├── supabase/         # Supabase client & types
+│   ├── linkedin/         # LinkedIn API integration
+│   └── services/         # Data service layer
+├── hooks/                # React hooks
+├── docs/                 # Documentation
+└── supabase/
+    └── seed/             # Database seed scripts
+```
+
+## 🔐 Environment Variables
+
+Required variables in `.env`:
+
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+
+# LinkedIn OAuth
+NEXT_PUBLIC_LINKEDIN_CLIENT_ID=your_client_id
+LINKEDIN_CLIENT_SECRET=your_client_secret
+
+# App Settings
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_USE_MOCK_DATA=false
+```
+
+## 🧪 Development
+
 ```bash
+# Development mode
+npm run dev
+
+# Build for production
 npm run build
+
+# Start production server
+npm start
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
 ```
 
-## Start production server
-```bash
-npm run start
-```
-The default port is `3000`.
+## 📦 Database Setup
 
-## Project notes
-- Videos are served from `public/`. The landing page background uses `/galaxy.mp4` → place your file at `public/galaxy.mp4`.
-- Fonts are loaded via `next/font`:
-  - Normal text: Space Grotesk
-  - Headings: Instrument Serif (weight `400`)
+1. Create Supabase project
+2. Run migrations in `supabase/migrations/`
+3. (Optional) Run seed data in `supabase/seed/`
+4. Configure LinkedIn OAuth redirect URLs
 
-## Troubleshooting
-- Peer dependency conflict during install:
-  - Use `npm install --legacy-peer-deps` (already shown above).
-- Font error "Missing weight for Instrument Serif":
-  - Ensure `Instrument_Serif({ weight: "400" })` is set in `app/layout.tsx`.
-- Port 3000 is busy:
-  - Set a different port: `PORT=3001 npm run dev` (PowerShell: `$env:PORT=3001; npm run dev`).
-- Static file not found (e.g., video):
-  - Confirm the asset exists at `public/<name>` and is referenced as `/<name>`.
+See [QUICK_START.md](./docs/QUICK_START.md) for detailed instructions.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file
+
+## 🙋 Support
+
+- 📖 [Documentation](./docs/)
+- 🐛 [Issues](https://github.com/blu1606/CV/issues)
+- 💬 [Discussions](https://github.com/blu1606/CV/discussions)
+
+---
+
+Made with ❤️ by [blu1606](https://github.com/blu1606)
 
 ## Scripts
 - `npm run dev` – Start Next.js in dev mode

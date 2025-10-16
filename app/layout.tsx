@@ -31,8 +31,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans ${spaceGrotesk.variable} ${GeistMono.variable} ${instrumentSerif.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body 
+        className={`font-sans ${spaceGrotesk.variable} ${GeistMono.variable} ${instrumentSerif.variable} antialiased`}
+        suppressHydrationWarning
+      >
         <Suspense fallback={null}>{children}</Suspense>
         <Analytics />
       </body>
