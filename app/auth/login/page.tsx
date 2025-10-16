@@ -4,11 +4,13 @@ import React from 'react'
 import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const [loading, setLoading] = React.useState(false)
   const [registerLoading, setRegisterLoading] = React.useState(false)
   const [message, setMessage] = React.useState('')
+  const supabase = React.useMemo(() => createClient(), [])
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -17,16 +19,20 @@ export default function LoginPage() {
     const formData = new FormData(e.currentTarget)
     const email = formData.get('email') as string
     const password = formData.get('password') as string
-    const { createClient } = await import('@/lib/supabase/client')
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      setMessage(error.message)
-    } else {
-      setMessage('Login successful! Redirecting...')
-      setTimeout(() => window.location.href = '/dashboard', 1200)
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        setMessage(error.message)
+      } else {
+        setMessage('Login successful! Redirecting...')
+        setTimeout(() => window.location.href = '/dashboard', 1200)
+      }
+    } catch (err) {
+      setMessage('Login failed. Please try again.')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   async function handleRegister(e: React.MouseEvent<HTMLButtonElement>) {
@@ -34,19 +40,26 @@ export default function LoginPage() {
     setMessage('')
     setRegisterLoading(true)
     const form = document.getElementById('email-auth-form') as HTMLFormElement | null
-    if (!form) return
+    if (!form) {
+      setRegisterLoading(false)
+      return
+    }
     const formData = new FormData(form)
     const email = formData.get('email') as string
     const password = formData.get('password') as string
-    const { createClient } = await import('@/lib/supabase/client')
-    const supabase = createClient()
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) {
-      setMessage(error.message)
-    } else {
-      setMessage('Registration successful! Check your email to confirm.')
+    
+    try {
+      const { error } = await supabase.auth.signUp({ email, password })
+      if (error) {
+        setMessage(error.message)
+      } else {
+        setMessage('Registration successful! Check your email to confirm.')
+      }
+    } catch (err) {
+      setMessage('Registration failed. Please try again.')
+    } finally {
+      setRegisterLoading(false)
     }
-    setRegisterLoading(false)
   }
 
   return (

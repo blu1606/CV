@@ -5,15 +5,23 @@ import { Sparkles, Zap, Target, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import { AnimatedCounter } from "@/components/animated-counter"
 import { LinkedInSignIn } from "@/components/linkedin-signin"
+import { useState, useEffect } from "react"
 
 export default function LandingPage() {
-  // Load email/password auth script
-  if (typeof window !== 'undefined') {
-    const script = document.createElement('script');
-    script.src = '/email-auth.js';
-    script.async = true;
-    document.body.appendChild(script);
-  }
+  const [blinkingCursors, setBlinkingCursors] = useState<Array<{ id: number; x: number; y: number }>>([])
+
+  // Generate random cursor positions
+  useEffect(() => {
+    const cursors = []
+    for (let i = 0; i < 8; i++) {
+      cursors.push({
+        id: i,
+        x: Math.random() * 80 + 10, // 10% to 90% of screen width
+        y: Math.random() * 70 + 15, // 15% to 85% of screen height
+      })
+    }
+    setBlinkingCursors(cursors)
+  }, [])
   return (
     <div className="min-h-screen bg-background">
       <section className="relative min-h-screen">
@@ -78,42 +86,6 @@ export default function LandingPage() {
                 </p>
 
                 <LinkedInSignIn />
-                {/* Email/password login/register form */}
-                <div className="mt-8 space-y-4">
-                  <form className="space-y-3" id="email-auth-form">
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="Email"
-                      className="w-full px-4 py-2 border rounded bg-white/10 text-black placeholder:text-black/50"
-                      required
-                    />
-                    <input
-                      type="password"
-                      name="password"
-                      placeholder="Password"
-                      className="w-full px-4 py-2 border rounded bg-white/10 text-black placeholder:text-black/50"
-                      required
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        type="submit"
-                        className="flex-1 bg-orange-accent text-background font-mono py-2 px-4 rounded hover:bg-orange-accent/90"
-                        id="email-login-btn"
-                      >
-                        Login
-                      </button>
-                      <button
-                        type="button"
-                        className="flex-1 border border-orange-accent text-orange-accent font-mono py-2 px-4 rounded hover:bg-orange-accent/10"
-                        id="email-register-btn"
-                      >
-                        Register
-                      </button>
-                    </div>
-                  </form>
-                  <div id="email-auth-message" className="text-sm text-red-500"></div>
-                </div>
               </div>
 
               <div className="space-y-6">
