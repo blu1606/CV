@@ -127,3 +127,27 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Terminal Page Styles */
+.bg-terminal-bg {
+  background-color: #0a0a0a;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 8px,
+      #1a1a1a 8px,
+      #1a1a1a 10px
+    );
+  background-size: 100% 10px;
+  background-position: 0 0;
+}
+
+@keyframes terminal-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.terminal-cursor {
+  animation: terminal-blink 1.5s infinite;
+}

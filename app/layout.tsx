@@ -21,8 +21,7 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   title: "magiCV - AI-Powered CV Builder",
-  description: "Create job-ready CVs in seconds with AI-powered matching and intelligent component management",
-  generator: "v0.app",
+  description: "Create job-ready CVs in seconds with AI-powered matching and intelligent component management"
 }
 
 export default function RootLayout({
