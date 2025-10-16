@@ -5,15 +5,21 @@ import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export default function LoginPage() {
   const [loading, setLoading] = React.useState(false)
   const [registerLoading, setRegisterLoading] = React.useState(false)
   const [message, setMessage] = React.useState('')
-  const supabase = React.useMemo(() => createClient(), [])
+  const [supabase, setSupabase] = React.useState<SupabaseClient | null>(null)
+
+  React.useEffect(() => {
+    setSupabase(createClient())
+  }, [])
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (!supabase) return
     setMessage('')
     setLoading(true)
     const formData = new FormData(e.currentTarget)
@@ -37,6 +43,7 @@ export default function LoginPage() {
 
   async function handleRegister(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault()
+    if (!supabase) return
     setMessage('')
     setRegisterLoading(true)
     const form = document.getElementById('email-auth-form') as HTMLFormElement | null
