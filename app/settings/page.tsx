@@ -108,6 +108,7 @@ export default function SettingsPage() {
   }
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen relative">
       {/* Video Background */}
       <video 
