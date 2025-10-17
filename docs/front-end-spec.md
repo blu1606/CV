@@ -1,9 +1,9 @@
 ## 🎨 UI/UX Specification
-# magiCV UI/UX Specification
+# CV Match UI/UX Specification
 
 ## Introduction
 
-This document defines the user experience goals, information architecture, user flows, and visual design specifications for the magiCV user interface. It serves as the foundation for visual design and frontend development, ensuring a cohesive and user-centered experience.
+This document defines the user experience goals, information architecture, user flows, and visual design specifications for the CV Match user interface. It serves as the foundation for visual design and frontend development, ensuring a cohesive and user-centered experience.
 
 ### Overall UX Goals & Principles
 
@@ -51,6 +51,8 @@ graph TD
         F -- Clicks 'Logout' --> A
     end
 
+    style A fill:#FFF,stroke:#333,stroke-width:2px
+    style C fill:#E3F2FD,stroke:#333,stroke-width:2px
 ```
 
 ### Navigation Structure
@@ -203,6 +205,37 @@ We will leverage **shadcn/ui**, a modern, accessible, and customizable set of co
 4.  **Modal:** For contextual forms and alerts (e.g., Upgrade prompt).
 5.  **Dropdown Menu:** For the user profile menu (Settings, Logout).
 
+-----
+
+## Branding & Style Guide
+
+### Visual Identity
+
+The aesthetic will be **clean, modern, and trustworthy**, reflecting our focus on professional data and AI-driven efficiency.
+
+### Color Palette
+
+  * **Primary:** Indigo (`#4f46e5`)
+  * **Secondary:** Slate (`#64748b`)
+  * **Functional:** Standard Green, Amber, and Red for success, warning, and error states.
+  * **Neutral:** A scale of grays for text and backgrounds.
+
+### Typography
+
+  * **Primary Font:** Inter
+  * **Monospace Font:** JetBrains Mono
+
+### Iconography
+
+  * **Icon Library:** Lucide Icons
+
+### Spacing & Layout
+
+  * **Grid System:** 8-point grid system.
+  * **Spacing Scale:** All spacing will use multiples of `4px`.
+
+-----
+
 ## Accessibility, Responsiveness, and Animation
 
   * **Accessibility:** We will adhere to **WCAG 2.1 Level AA** standards, focusing on color contrast, keyboard navigation, and screen reader support.
@@ -217,74 +250,3 @@ We will leverage **shadcn/ui**, a modern, accessible, and customizable set of co
   * **Next Steps:** This document should be reviewed, used to generate mockups with an AI UI tool, and then handed off to the Architect for the `front-end-architecture` phase.
 
 \</details\>
-
-
-🧭 1. Nhóm Unauthenticated (chưa đăng nhập)
-
-Landing Page — trang giới thiệu và nút “Login with LinkedIn”.
-
-🔐 2. Nhóm Authentication (đăng nhập & onboarding)
-
-LinkedIn OAuth Screen (trang ủy quyền bên ngoài).
-
-Onboarding & Data Sync (UI hiển thị “Syncing Your Profile…” hoặc “Sync Failed”).
-
-🧑‍💻 3. Nhóm Authenticated App (đăng nhập thành công)
-
-Dashboard — trung tâm chính hiển thị CV, CTA “New CV”, dữ liệu đồng bộ.
-
-CV Editor — giao diện hai panel (Preview + Component Library & Match Score).
-
-Component Library — nơi quản lý, chỉnh sửa các thành phần nghề nghiệp.
-
-Account Settings — quản lý hồ sơ và tùy chọn người dùng.
-
-Upgrade to Premium — modal hoặc trang giới thiệu gói nâng cấp.
-
-Coming Soon / Waitlist Page — trang ghi nhận quan tâm đến Premium.
-
-📄 4. Nhóm chức năng phụ
-
-Export PDF State / Modal — hiển thị quá trình “Generating Your PDF…”.
-
-Error / Empty States — các trang như “Permission Denied”, “Sync Failed”, hoặc “No CV yet”.
-
-✅ Tổng cộng: 11 trang (screens) cần thiết kế cho MVP.
-
-Nếu bạn chỉ tính UI chính (không bao gồm OAuth và các trạng thái phụ) thì có 7 trang chính:
-Landing Page, Onboarding, Dashboard, CV Editor, Component Library, Account Settings, Upgrade Page.
-
-graph TD
-
-    %% Unauthenticated
-    subgraph Unauthenticated
-        A1[Landing Page]
-    end
-
-    %% Authentication
-    subgraph Authentication
-        A1 --> A2[LinkedIn OAuth (External)]
-        A2 --> A3[Onboarding & Data Sync]
-        A3 -->|Sync Success| D1[Dashboard]
-        A3 -->|Sync Failed| A4[Error: Sync Failed / Retry]
-    end
-
-    %% Authenticated App
-    subgraph Authenticated App
-        D1[Dashboard] --> D2[CV Editor]
-        D1 --> D3[Component Library]
-        D1 --> D4[Account Settings]
-        D1 --> D5[Upgrade to Premium]
-        D5 --> D6[Coming Soon / Waitlist]
-        D2 --> D7[Export PDF Modal]
-        D2 --> D8[Error: PDF Generation Failed]
-    end
-
-
-
-| Nhóm                  | Trang                                                                        | Mục đích chính                               |
-| --------------------- | ---------------------------------------------------------------------------- | -------------------------------------------- |
-| **Unauthenticated**   | Landing Page                                                                 | Giới thiệu & nút đăng nhập LinkedIn          |
-| **Authentication**    | LinkedIn OAuth, Onboarding, Sync Failed                                      | Kết nối và đồng bộ dữ liệu ban đầu           |
-| **Authenticated App** | Dashboard, CV Editor, Component Library, Account Settings, Upgrade, Waitlist | Toàn bộ trải nghiệm sau đăng nhập            |
-| **Phụ trợ / Modal**   | Export PDF, Error States                                                     | Trạng thái chức năng phụ & phản hồi hệ thống |
