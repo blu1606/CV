@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ConsistentHeader } from "@/components/consistent-header"
+import { TerminalCursors } from "@/components/terminal-cursors"
 import { 
   ArrowLeft, 
   RefreshCw, 
@@ -300,17 +301,7 @@ export default function SyncPage() {
           {/* Terminal Section */}
           <section className="relative py-20 bg-terminal-bg">
             {/* Blinking Cursors */}
-            {Array.from({ length: 6 }, (_, i) => (
-              <div
-                key={i}
-                className="absolute w-px h-5 bg-orange-500 terminal-cursor"
-                style={{
-                  left: `${Math.random() * 80 + 10}%`,
-                  top: `${Math.random() * 70 + 15}%`,
-                  animationDelay: `${i * 0.2}s`
-                }}
-              />
-            ))}
+            <TerminalCursors count={6} />
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto text-center space-y-6">
                 <div className="inline-block px-4 py-1 bg-orange-accent text-background text-xs font-mono mb-4">

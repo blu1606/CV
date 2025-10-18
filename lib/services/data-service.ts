@@ -69,17 +69,22 @@ const MOCK_CVS: CVData[] = [
  * Get all components for current user
  */
 export async function getComponents(): Promise<ComponentData[]> {
+  console.log('🔍 getComponents called - USE_MOCK_DATA:', USE_MOCK_DATA)
+  
   if (USE_MOCK_DATA) {
-    console.log('📦 Using MOCK component data')
+    console.log('📦 Using MOCK component data due to environment variable')
     return MOCK_COMPONENTS
   }
 
   try {
+    console.log('🔗 Creating Supabase client...')
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
+    console.log('👤 User status:', user ? `Authenticated (${user.email})` : 'Not authenticated')
+
     if (!user) {
-      console.log('⚠️ No user, returning mock data')
+      console.log('⚠️ No user authenticated, returning mock data')
       return MOCK_COMPONENTS
     }
 
@@ -182,6 +187,163 @@ export async function getUserProfile() {
     return data
   } catch (error) {
     console.error('❌ Exception fetching profile:', error)
+    return null
+  }
+}
+
+/**
+ * Create a new component
+ */
+export async function createComponent(
+  data: Omit<ComponentData, 'id' | 'created_at'>
+): Promise<ComponentData | null> {
+  if (USE_MOCK_DATA) {
+    console.log('📦 Using MOCK - Cannot create in mock mode')
+    return null
+  }
+
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      console.error('❌ No authenticated user')
+      return null
+    }
+
+    const { data: newComponent, error } = await supabase
+      .from('components')
+      .insert({
+        ...data,
+        user_id: user.id,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('❌ Error creating component:', error)
+      return null
+    }
+
+    console.log('✅ Component created:', newComponent.id)
+    return newComponent as ComponentData
+  } catch (error) {
+    console.error('❌ Exception creating component:', error)
+    return null
+  }
+}
+
+/**
+ * Update an existing component
+ */
+export async function updateComponent(
+  id: string,
+  data: Partial<ComponentData>
+): Promise<ComponentData | null> {
+  if (USE_MOCK_DATA) {
+    console.log('📦 Using MOCK - Cannot update in mock mode')
+    return null
+  }
+
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      console.error('❌ No authenticated user')
+      return null
+    }
+
+    const { data: updatedComponent, error } = await supabase
+      .from('components')
+      .update(data)
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('❌ Error updating component:', error)
+      return null
+    }
+
+    console.log('✅ Component updated:', id)
+    return updatedComponent as ComponentData
+  } catch (error) {
+    console.error('❌ Exception updating component:', error)
+    return null
+  }
+}
+
+/**
+ * Delete a component
+ */
+export async function deleteComponent(id: string): Promise<boolean> {
+  if (USE_MOCK_DATA) {
+    console.log('📦 Using MOCK - Cannot delete in mock mode')
+    return false
+  }
+
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      console.error('❌ No authenticated user')
+      return false
+    }
+
+    const { error } = await supabase
+      .from('components')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
+
+    if (error) {
+      console.error('❌ Error deleting component:', error)
+      return false
+    }
+
+    console.log('✅ Component deleted:', id)
+    return true
+  } catch (error) {
+    console.error('❌ Exception deleting component:', error)
+    return false
+  }
+}
+
+/**
+ * Get a single component by ID
+ */
+export async function getComponentById(id: string): Promise<ComponentData | null> {
+  if (USE_MOCK_DATA) {
+    return MOCK_COMPONENTS.find((c) => c.id === id) || null
+  }
+
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      console.log('⚠️ No user, cannot fetch component')
+      return null
+    }
+
+    const { data, error } = await supabase
+      .from('components')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (error) {
+      console.error('❌ Error fetching component:', error)
+      return null
+    }
+
+    return data as ComponentData
+  } catch (error) {
+    console.error('❌ Exception fetching component:', error)
     return null
   }
 }

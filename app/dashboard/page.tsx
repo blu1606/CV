@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { ConsistentHeader } from "@/components/consistent-header"
+import { TerminalCursors } from "@/components/terminal-cursors"
 import { 
   Plus, 
   FileText, 
@@ -272,17 +273,7 @@ export default function DashboardPage() {
         {/* Data Sources Section */}
         <section className="relative py-20 bg-terminal-bg">
           {/* Blinking Cursors */}
-          {Array.from({ length: 8 }, (_, i) => (
-            <div
-              key={i}
-              className="absolute w-px h-5 bg-orange-500 terminal-cursor"
-              style={{
-                left: `${Math.random() * 80 + 10}%`,
-                top: `${Math.random() * 70 + 15}%`,
-                animationDelay: `${i * 0.2}s`
-              }}
-            />
-          ))}
+          <TerminalCursors count={8} />
           <div className="container mx-auto px-4">
             <h2 className="font-serif text-2xl text-white mb-6">Data Sources</h2>
             

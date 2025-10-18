@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
 import { Check, Sparkles } from "lucide-react"
+import { TerminalCursors } from "@/components/terminal-cursors"
 import { useState, useEffect } from "react"
 
 export default function PricingPage() {

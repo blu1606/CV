@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ConsistentHeader } from "@/components/consistent-header"
 import { 
   ArrowLeft, 
@@ -21,10 +22,11 @@ import {
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 
 export default function EditComponentPage() {
   const params = useParams()
+  const router = useRouter()
   const componentId = params.id as string
   
   const [formData, setFormData] = useState({
@@ -39,19 +41,8 @@ export default function EditComponentPage() {
   const [newTag, setNewTag] = useState("")
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-
-  // Mock data - in real app this would come from API
-  const mockComponent = {
-    id: 1,
-    title: "Senior Software Engineer at TechCorp",
-    type: "experience",
-    category: "work",
-    content: "Led development of microservices architecture serving 1M+ users. Implemented CI/CD pipelines reducing deployment time by 60%. Mentored 3 junior developers and established code review processes.",
-    source: "LinkedIn",
-    lastUpdated: "2024-01-15",
-    tags: ["React", "Node.js", "AWS", "Leadership"],
-    isActive: true
-  }
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const componentTypes = [
     { id: "experience", label: "Work Experience", icon: Briefcase },
@@ -71,16 +62,48 @@ export default function EditComponentPage() {
 
   // Load component data
   useEffect(() => {
-    // In real app, fetch component data by ID
-    setFormData({
-      title: mockComponent.title,
-      type: mockComponent.type,
-      category: mockComponent.category,
-      content: mockComponent.content,
-      source: mockComponent.source,
-      tags: mockComponent.tags,
-      isActive: mockComponent.isActive
-    })
+    const loadComponent = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+        
+        const response = await fetch(`/api/components/${componentId}`)
+        if (!response.ok) {
+          throw new Error("Failed to load component")
+        }
+        
+        const data = await response.json()
+        
+        // Map component type to category
+        const mapTypeToCategory = (type: string) => {
+          switch (type) {
+            case 'experience': return 'work'
+            case 'education': return 'education'
+            case 'skill': return 'skills'
+            case 'project': return 'projects'
+            default: return 'other'
+          }
+        }
+        
+        setFormData({
+          title: data.title || "",
+          type: data.type || "",
+          category: mapTypeToCategory(data.type) || "",
+          content: data.description || "",
+          source: data.organization || "",
+          tags: data.highlights || [],
+          isActive: data.isActive !== false
+        })
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load component")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    if (componentId) {
+      loadComponent()
+    }
   }, [componentId])
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -106,14 +129,42 @@ export default function EditComponentPage() {
 
   const handleSave = async () => {
     if (!formData.title.trim() || !formData.type || !formData.content.trim()) {
+      setError("Please fill in all required fields")
       return
     }
     
-    setIsSaving(true)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setIsSaving(false)
-    // In real app, redirect back to components page
+    try {
+      setIsSaving(true)
+      setError(null)
+      
+      // Convert form data back to API format (Supabase schema)
+      const apiData = {
+        title: formData.title,
+        type: formData.type,
+        description: formData.content,
+        organization: formData.source || null,
+        highlights: formData.tags,
+        isActive: formData.isActive
+      }
+      
+      const response = await fetch(`/api/components/${componentId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(apiData)
+      })
+      
+      if (!response.ok) {
+        throw new Error("Failed to save component")
+      }
+      
+      router.push("/components")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save component")
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleDelete = async () => {
@@ -121,11 +172,23 @@ export default function EditComponentPage() {
       return
     }
     
-    setIsDeleting(true)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setIsDeleting(false)
-    // In real app, redirect back to components page
+    try {
+      setIsDeleting(true)
+      setError(null)
+      
+      const response = await fetch(`/api/components/${componentId}`, {
+        method: "DELETE"
+      })
+      
+      if (!response.ok) {
+        throw new Error("Failed to delete component")
+      }
+      
+      router.push("/components")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete component")
+      setIsDeleting(false)
+    }
   }
 
   const selectedType = componentTypes.find(type => type.id === formData.type)
@@ -148,6 +211,24 @@ export default function EditComponentPage() {
         <ConsistentHeader />
         
         <main className="container mx-auto px-4 py-8">
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="w-8 h-8 border-4 border-orange-accent border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+
+          {/* Error Alert */}
+          {error && (
+            <Alert className="mb-8 border-2 border-destructive bg-destructive/10">
+              <AlertDescription className="text-destructive">
+                {error}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {!isLoading && (
+            <>
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-4">
@@ -406,7 +487,7 @@ export default function EditComponentPage() {
               <div className="mt-6 space-y-3">
                 <Button
                   onClick={handleSave}
-                  disabled={!formData.title.trim() || !formData.type || !formData.content.trim() || isSaving}
+                  disabled={!formData.title?.trim() || !formData.type || !formData.content?.trim() || isSaving}
                   className="w-full font-mono text-sm bg-orange-accent text-background hover:bg-orange-accent/90 border-0"
                 >
                   {isSaving ? (
@@ -453,6 +534,8 @@ export default function EditComponentPage() {
               </div>
             </div>
           </div>
+            </>
+          )}
         </main>
       </div>
     </div>

@@ -1,10 +1,10 @@
-"use client"
-
+﻿import { ConsistentHeader } from "@/components/consistent-header"
+import { getComponents } from "@/lib/services/data-service"
+import { TerminalCursors } from "@/components/terminal-cursors"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { ConsistentHeader } from "@/components/consistent-header"
 import { 
   Plus, 
   Search, 
@@ -22,97 +22,46 @@ import {
   GraduationCap,
   Award,
   Code,
-  Globe,
-  Users,
-  BookOpen,
   Star,
-  ChevronDown
+  Target
 } from "lucide-react"
-import { useState } from "react"
 import Link from "next/link"
 
-export default function ComponentLibraryPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+export default async function ComponentLibraryPage() {
+  // Fetch components server-side
+  console.log("SSR: Fetching components server-side...")
+  const components = await getComponents()
+  console.log("SSR: Received components count:", Array.isArray(components) ? components.length : "non-array")
 
-  // Mock data - in real app this would come from API
-  const components = [
-    {
-      id: 1,
-      title: "Senior Software Engineer at TechCorp",
-      type: "experience",
-      category: "work",
-      content: "Led development of microservices architecture serving 1M+ users. Implemented CI/CD pipelines reducing deployment time by 60%. Mentored 3 junior developers and established code review processes.",
-      source: "LinkedIn",
-      lastUpdated: "2024-01-15",
-      tags: ["React", "Node.js", "AWS", "Leadership"],
-      isActive: true
-    },
-    {
-      id: 2,
-      title: "Master of Computer Science - Stanford University",
-      type: "education",
-      category: "education",
-      content: "Specialized in Machine Learning and Distributed Systems. GPA: 3.8/4.0. Thesis: 'Scalable Neural Networks for Real-time Recommendation Systems'",
-      source: "LinkedIn",
-      lastUpdated: "2024-01-10",
-      tags: ["Machine Learning", "Distributed Systems", "Research"],
-      isActive: true
-    },
-    {
-      id: 3,
-      title: "AWS Certified Solutions Architect",
-      type: "certification",
-      category: "certifications",
-      content: "Professional certification demonstrating expertise in designing distributed systems on AWS. Valid until 2026.",
-      source: "Manual Entry",
-      lastUpdated: "2024-01-08",
-      tags: ["AWS", "Cloud Architecture", "DevOps"],
-      isActive: true
-    },
-    {
-      id: 4,
-      title: "Open Source Contributor - React",
-      type: "project",
-      category: "projects",
-      content: "Contributed to React core library, focusing on performance optimizations. 15+ merged PRs, 500+ stars on personal projects.",
-      source: "GitHub",
-      lastUpdated: "2024-01-05",
-      tags: ["React", "Open Source", "JavaScript"],
-      isActive: true
-    },
-    {
-      id: 5,
-      title: "Full Stack Developer at StartupXYZ",
-      type: "experience",
-      category: "work",
-      content: "Built and maintained web applications using React, Node.js, and PostgreSQL. Collaborated with design team to implement responsive UIs.",
-      source: "LinkedIn",
-      lastUpdated: "2024-01-03",
-      tags: ["React", "Node.js", "PostgreSQL", "UI/UX"],
-      isActive: false
-    },
-    {
-      id: 6,
-      title: "JavaScript, Python, TypeScript, Go",
-      type: "skills",
-      category: "skills",
-      content: "Proficient in multiple programming languages with 5+ years of experience in web development and backend systems.",
-      source: "LinkedIn",
-      lastUpdated: "2024-01-01",
-      tags: ["Programming", "Web Development", "Backend"],
-      isActive: true
+  // Map Supabase data structure to UI categories
+  const mapTypeToCategory = (type: string) => {
+    switch (type) {
+      case 'experience': return 'work'
+      case 'education': return 'education'
+      case 'skill': return 'skills'
+      case 'project': return 'projects'
+      default: return 'other'
     }
-  ]
+  }
+
+  // Transform components for UI with proper source labeling  
+  const transformedComponents = components.map(component => ({
+    ...component,
+    category: mapTypeToCategory(component.type),
+    content: component.description || '',
+    tags: component.highlights || [],
+    lastUpdated: component.created_at ? new Date(component.created_at).toLocaleDateString() : 'Recently',
+    source: component.organization || 'Manual Entry',
+    isActive: true
+  }))
 
   const categories = [
-    { id: "all", label: "All Components", icon: Grid3X3, count: components.length },
-    { id: "work", label: "Work Experience", icon: Briefcase, count: components.filter(c => c.category === "work").length },
-    { id: "education", label: "Education", icon: GraduationCap, count: components.filter(c => c.category === "education").length },
-    { id: "certifications", label: "Certifications", icon: Award, count: components.filter(c => c.category === "certifications").length },
-    { id: "projects", label: "Projects", icon: Code, count: components.filter(c => c.category === "projects").length },
-    { id: "skills", label: "Skills", icon: Star, count: components.filter(c => c.category === "skills").length }
+    { id: "all", label: "All Components", icon: Grid3X3, count: transformedComponents.length },
+    { id: "work", label: "Work Experience", icon: Briefcase, count: transformedComponents.filter(c => c.category === "work").length },
+    { id: "education", label: "Education", icon: GraduationCap, count: transformedComponents.filter(c => c.category === "education").length },
+    { id: "certifications", label: "Certifications", icon: Award, count: transformedComponents.filter(c => c.category === "certifications").length },
+    { id: "projects", label: "Projects", icon: Code, count: transformedComponents.filter(c => c.category === "projects").length },
+    { id: "skills", label: "Skills", icon: Star, count: transformedComponents.filter(c => c.category === "skills").length }
   ]
 
   const dataSources = [
@@ -120,49 +69,21 @@ export default function ComponentLibraryPage() {
       name: "LinkedIn",
       status: "connected",
       lastSync: "2 hours ago",
-      itemsCount: 8
+      itemsCount: transformedComponents.filter(c => c.source.includes('LinkedIn')).length || 8
     },
     {
       name: "GitHub",
       status: "connected",
       lastSync: "1 day ago",
-      itemsCount: 3
+      itemsCount: transformedComponents.filter(c => c.source.includes('GitHub')).length || 3
     },
     {
       name: "Manual Entry",
       status: "available",
       lastSync: null,
-      itemsCount: 1
+      itemsCount: transformedComponents.filter(c => c.source === 'Manual Entry').length || 1
     }
   ]
-
-  const filteredComponents = components.filter(component => {
-    const matchesSearch = component.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         component.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         component.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-    const matchesCategory = selectedCategory === "all" || component.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
-
-  const handleSyncData = async (source: string) => {
-    // Simulate sync
-    console.log(`Syncing ${source}...`)
-  }
-
-  const handleEditComponent = (id: number) => {
-    // Navigate to edit component page
-    console.log(`Edit component ${id}`)
-  }
-
-  const handleDeleteComponent = (id: number) => {
-    // Delete component
-    console.log(`Delete component ${id}`)
-  }
-
-  const getCategoryIcon = (category: string) => {
-    const categoryData = categories.find(c => c.id === category)
-    return categoryData?.icon || Grid3X3
-  }
 
   return (
     <div className="min-h-screen relative">
@@ -190,6 +111,10 @@ export default function ComponentLibraryPage() {
             <p className="text-lg text-black/80 max-w-2xl">
               Manage your professional components. Edit, organize, and sync your data from various sources.
             </p>
+            {/* Debug info */}
+            <div className="mt-2 text-sm text-black/60 font-mono">
+              Debug: {components.length} components loaded ({components.length > 0 && components[0].id.startsWith("mock") ? "MOCK" : "REAL"} data)
+            </div>
           </div>
 
           {/* Controls Section */}
@@ -202,8 +127,6 @@ export default function ComponentLibraryPage() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60 w-4 h-4" />
                     <Input
                       placeholder="Search components..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10 border-2 border-black/40 bg-white/20 text-white placeholder:text-white/60"
                     />
                   </div>
@@ -220,17 +143,15 @@ export default function ComponentLibraryPage() {
                     
                     <div className="flex border-2 border-black/40 rounded-md">
                       <Button
-                        variant={viewMode === "grid" ? "default" : "ghost"}
+                        variant="default"
                         size="sm"
-                        onClick={() => setViewMode("grid")}
                         className="font-mono text-xs rounded-none border-0"
                       >
                         <Grid3X3 className="w-3 h-3" />
                       </Button>
                       <Button
-                        variant={viewMode === "list" ? "default" : "ghost"}
+                        variant="ghost"
                         size="sm"
-                        onClick={() => setViewMode("list")}
                         className="font-mono text-xs rounded-none border-0"
                       >
                         <List className="w-3 h-3" />
@@ -239,28 +160,20 @@ export default function ComponentLibraryPage() {
                   </div>
                 </div>
 
-                {/* Actions */}
+                {/* Action Buttons */}
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="font-mono text-xs border-black/40 hover:bg-black/10 text-white"
-                    asChild
+                    className="gap-2 bg-transparent border-white/40 text-white hover:bg-white/10"
                   >
-                    <Link href="/components/sync">
-                      <RefreshCw className="w-3 h-3 mr-1" />
-                      SYNC ALL
-                    </Link>
+                    <RefreshCw className="w-4 h-4" />
+                    Sync
                   </Button>
-                  
-                  <Button
-                    size="sm"
-                    className="font-mono text-xs bg-orange-accent text-background hover:bg-orange-accent/90 border-0"
-                    asChild
-                  >
+                  <Button asChild size="sm" className="gap-2 bg-white text-black hover:bg-white/90">
                     <Link href="/components/create">
-                      <Plus className="w-3 h-3 mr-1" />
-                      NEW COMPONENT
+                      <Plus className="w-4 h-4" />
+                      Create
                     </Link>
                   </Button>
                 </div>
@@ -268,255 +181,243 @@ export default function ComponentLibraryPage() {
             </CardContent>
           </Card>
 
-          <div className="grid lg:grid-cols-4 gap-8">
-            {/* Categories Sidebar */}
-            <div className="lg:col-span-1">
-              <section className="relative py-20 bg-terminal-bg">
-                {/* Blinking Cursors */}
-                {Array.from({ length: 12 }, (_, i) => (
-                  <div
-                    key={i}
-                    className="absolute w-px h-5 bg-orange-500 terminal-cursor"
-                    style={{
-                      left: `${Math.random() * 80 + 10}%`,
-                      top: `${Math.random() * 80 + 10}%`,
-                      animationDelay: `${i * 0.2}s`
-                    }}
-                  />
-                ))}
-                <div className="container mx-auto px-4 space-y-6">
-                  {/* Categories Card */}
-                  <Card className="p-6 bg-background/80 backdrop-blur-sm border-2 border-foreground/20">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg text-white">Categories</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {categories.map((category) => {
-                        const Icon = category.icon
-                        return (
-                          <Button
-                            key={category.id}
-                            variant={selectedCategory === category.id ? "default" : "ghost"}
-                            className={`w-full justify-start font-mono text-xs ${
-                              selectedCategory === category.id
-                                ? "bg-orange-accent text-background hover:bg-orange-accent/90"
-                                : "text-white hover:bg-foreground/10"
-                            }`}
-                            onClick={() => setSelectedCategory(category.id)}
-                          >
-                            <Icon className="w-3 h-3 mr-2" />
-                            {category.label}
-                            <Badge variant="secondary" className="ml-auto text-xs">
-                              {category.count}
-                            </Badge>
-                          </Button>
-                        )
-                      })}
-                    </CardContent>
-                  </Card>
-
-                  {/* Data Sources Card */}
-                  <Card className="p-6 bg-background/80 backdrop-blur-sm border-2 border-foreground/20">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg text-white">Data Sources</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {dataSources.map((source) => (
-                        <div key={source.name} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {source.status === "connected" ? (
-                              <CheckCircle className="w-4 h-4 text-green-500" />
-                            ) : (
-                              <AlertCircle className="w-4 h-4 text-orange-500" />
-                            )}
-                            <span className="text-sm text-white font-medium">{source.name}</span>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleSyncData(source.name)}
-                            className="font-mono text-xs border-foreground/40 hover:bg-foreground/10 text-white h-6 px-2"
-                          >
-                            <RefreshCw className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                </div>
-              </section>
-            </div>
-
-            {/* Components Grid/List */}
-            <div className="lg:col-span-3">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-serif text-2xl text-black">
-                  {selectedCategory === "all" ? "All Components" : categories.find(c => c.id === selectedCategory)?.label}
-                </h2>
-                <Badge variant="outline" className="font-mono text-xs border-black/40 text-black">
-                  {filteredComponents.length} COMPONENTS
-                </Badge>
-              </div>
-
-              {filteredComponents.length > 0 ? (
-                <div className={viewMode === "grid" ? "grid md:grid-cols-2 gap-6" : "space-y-4"}>
-                  {filteredComponents.map((component) => {
-                    const CategoryIcon = getCategoryIcon(component.category)
-                    return (
-                      <Card 
-                        key={component.id} 
-                        className={`border-2 border-black bg-white/10 backdrop-blur-sm hover:border-orange-accent/60 transition-colors ${
-                          !component.isActive ? "opacity-60" : ""
-                        }`}
-                      >
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-3 flex-1">
-                              <div className="w-8 h-8 border-2 border-orange-accent flex items-center justify-center flex-shrink-0">
-                                <CategoryIcon className="w-4 h-4 text-orange-accent" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <CardTitle className="text-lg text-black line-clamp-2 mb-1">
-                                  {component.title}
-                                </CardTitle>
-                                <div className="flex items-center gap-2 text-sm text-black/70">
-                                  <Badge variant="outline" className="font-mono text-xs border-black/40 text-black">
-                                    {component.type.toUpperCase()}
-                                  </Badge>
-                                  <span>•</span>
-                                  <span>{component.source}</span>
-                                  <span>•</span>
-                                  <span>{component.lastUpdated}</span>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div className="flex gap-1">
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                className="font-mono text-xs border-black/40 hover:bg-black/10 text-white h-6 px-2"
-                                asChild
-                              >
-                                <Link href={`/components/edit/${component.id}`}>
-                                  <Edit className="w-3 h-3" />
-                                </Link>
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => handleDeleteComponent(component.id)}
-                                className="font-mono text-xs border-destructive/40 text-destructive hover:bg-destructive/10 h-6 px-2"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        
-                        <CardContent className="space-y-4">
-                          <p className="text-sm text-black/80 line-clamp-3">
-                            {component.content}
-                          </p>
-                          
-                          <div className="flex flex-wrap gap-1">
-                            {component.tags.map((tag, index) => (
-                              <Badge 
-                                key={index}
-                                variant="secondary" 
-                                className="font-mono text-xs bg-black/20 text-white"
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                          
-                          {!component.isActive && (
-                            <div className="flex items-center gap-2 text-sm text-orange-600">
-                              <AlertCircle className="w-4 h-4" />
-                              <span>Inactive - not included in CV generation</span>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    )
-                  })}
-                </div>
-              ) : (
-                <Card className="border-2 border-dashed border-black bg-white/5">
-                  <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                    <Grid3X3 className="w-12 h-12 text-white/60 mb-4" />
-                    <h3 className="text-lg font-semibold text-white mb-2">No components found</h3>
-                    <p className="text-white/70 mb-4">
-                      {searchQuery ? "Try adjusting your search terms" : "Create your first component or sync your data"}
-                    </p>
-                    <Button
-                      variant="outline"
-                      className="font-mono text-sm border-black hover:bg-black/10 text-white"
-                      asChild
-                    >
-                      <Link href="/components/create">
-                        <Plus className="w-4 h-4 mr-2" />
-                        CREATE COMPONENT
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+          {/* Category Filters */}
+          <div className="flex flex-wrap gap-2 mb-8">
+            {categories.map((category) => {
+              const Icon = category.icon
+              return (
+                <Button
+                  key={category.id}
+                  variant={category.id === "all" ? "default" : "outline"}
+                  size="sm"
+                  className="gap-2 font-mono text-xs border-black/40 hover:bg-black/10 text-white"
+                >
+                  <Icon className="w-3 h-3" />
+                  {category.label}
+                  <Badge variant="secondary" className="ml-1 text-xs bg-black/30 text-white">
+                    {category.count}
+                  </Badge>
+                </Button>
+              )
+            })}
           </div>
 
-          {/* Terminal Section with Sync Status */}
+          {/* Components Grid */}
+          {transformedComponents.length === 0 ? (
+            <Card className="border-2 border-black bg-white/10 backdrop-blur-sm">
+              <CardContent className="p-12 text-center">
+                <div className="text-white/60 mb-4">
+                  <Code className="w-12 h-12 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-white mb-2">No Components Found</h3>
+                  <p className="text-white/70 mb-4">
+                    Start building your professional component library by syncing with LinkedIn or creating components manually.
+                  </p>
+                  <div className="flex gap-2 justify-center">
+                    <Button size="sm" className="bg-white text-black hover:bg-white/90">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Component
+                    </Button>
+                    <Button variant="outline" size="sm" className="border-white/40 text-white">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Sync LinkedIn
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {transformedComponents.map((component) => {
+                const getCategoryIcon = (category: string) => {
+                  const categoryData = categories.find(c => c.id === category)
+                  return categoryData?.icon || Grid3X3
+                }
+                const Icon = getCategoryIcon(component.category)
+                return (
+                  <Card key={component.id} className="border-2 border-black bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 border-2 border-black/40 rounded-lg flex items-center justify-center">
+                            <Icon className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <CardTitle className="text-white text-sm line-clamp-2">
+                              {component.title}
+                            </CardTitle>
+                            <CardDescription className="text-white/70 text-xs">
+                              {component.source}
+                            </CardDescription>
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 hover:bg-white/10"
+                          >
+                            <Edit className="w-3 h-3 text-white" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 hover:bg-white/10"
+                          >
+                            <Trash2 className="w-3 h-3 text-white" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    
+                    <CardContent className="pt-0">
+                      <p className="text-white/80 text-sm mb-3 line-clamp-3">
+                        {component.content}
+                      </p>
+                      
+                      <div className="flex items-center gap-2 text-white/60 text-xs mb-3">
+                        <Calendar className="w-3 h-3" />
+                        Updated {component.lastUpdated}
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {component.tags.slice(0, 3).map((tag, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs bg-black/30 text-white">
+                            {tag}
+                          </Badge>
+                        ))}
+                        {component.tags.length > 3 && (
+                          <Badge variant="secondary" className="text-xs bg-black/30 text-white">
+                            +{component.tags.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center justify-between text-xs mb-4">
+                        <span className="text-white/60">
+                          {component.type} • {component.category}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          {component.isActive ? (
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                          ) : (
+                            <AlertCircle className="w-3 h-3 text-orange-500" />
+                          )}
+                          <span className="text-white/60">
+                            {component.isActive ? "Active" : "Inactive"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2 border-t border-white/10 pt-3 mt-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 font-mono text-xs border-orange-accent/40 text-orange-accent hover:bg-orange-accent/10"
+                          asChild
+                        >
+                          <Link href={`/components/edit/${component.id}`}>
+                            <Edit className="w-3 h-3 mr-1" />
+                            EDIT
+                          </Link>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Data Sources Section */}
+          <Card className="mt-12 border-2 border-black bg-white/10 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-white">Data Sources</CardTitle>
+              <CardDescription className="text-white/70">
+                Manage your connected professional platforms
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-4">
+                {dataSources.map((source) => (
+                  <div key={source.name} className="flex items-center justify-between p-4 border border-black/20 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 border border-black/40 rounded flex items-center justify-center">
+                        <span className="text-xs font-bold text-white">{source.name[0]}</span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-white text-sm">{source.name}</div>
+                        <div className="flex items-center gap-2 text-xs">
+                          {source.status === "connected" ? (
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                          ) : (
+                            <AlertCircle className="w-3 h-3 text-orange-500" />
+                          )}
+                          <span className="text-white/60 capitalize">{source.status}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-right mr-3">
+                        <div className="text-white font-medium text-sm">{source.itemsCount}</div>
+                        <div className="text-white/60 text-xs">items</div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="font-mono text-xs border-black/40 hover:bg-black/10 text-white"
+                      >
+                        <RefreshCw className="w-3 h-3 mr-1" />
+                        SYNC
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Terminal Section */}
           <section className="relative py-20 bg-terminal-bg mt-12">
             {/* Blinking Cursors */}
-            {Array.from({ length: 6 }, (_, i) => (
-              <div
-                key={i}
-                className="absolute w-px h-5 bg-orange-500 terminal-cursor"
-                style={{
-                  left: `${Math.random() * 80 + 10}%`,
-                  top: `${Math.random() * 70 + 15}%`,
-                  animationDelay: `${i * 0.2}s`
-                }}
-              />
-            ))}
+            <TerminalCursors count={6} />
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto text-center space-y-6">
                 <div className="inline-block px-4 py-1 bg-orange-accent text-background text-xs font-mono mb-4">
-                  SYNC STATUS
+                  COMPONENT INTELLIGENCE
                 </div>
                 <h2 className="font-serif text-3xl md:text-4xl text-white text-balance">
-                  Keep Your Components Up to Date
+                  Smart Component Management
                 </h2>
                 <p className="text-lg text-white/80 max-w-2xl mx-auto">
-                  Your professional data is automatically synced from LinkedIn, GitHub, and other sources. 
-                  Keep your components fresh for better CV generation.
+                  Our AI automatically categorizes and optimizes your professional data from multiple sources, 
+                  ensuring your CV components are always up-to-date and perfectly formatted.
                 </p>
                 
                 <div className="grid md:grid-cols-3 gap-6 mt-8">
-                  {dataSources.map((source) => (
-                    <div key={source.name} className="border-2 border-foreground/40 bg-background/50 backdrop-blur-sm p-6">
-                      <div className="flex items-center justify-center mb-4">
-                        {source.status === "connected" ? (
-                          <CheckCircle className="w-8 h-8 text-green-500" />
-                        ) : (
-                          <AlertCircle className="w-8 h-8 text-orange-500" />
-                        )}
-                      </div>
-                      <h3 className="font-semibold text-white mb-2">{source.name}</h3>
-                      <p className="text-sm text-white/80 mb-4">
-                        {source.status === "connected" 
-                          ? `${source.itemsCount} components synced`
-                          : "Not connected"
-                        }
-                      </p>
-                      {source.lastSync && (
-                        <p className="text-xs text-white/60 font-mono">
-                          Last sync: {source.lastSync}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                  <div className="border-2 border-foreground/40 bg-background/50 backdrop-blur-sm p-6">
+                    <RefreshCw className="w-8 h-8 text-orange-accent mx-auto mb-4" />
+                    <h3 className="font-semibold text-white mb-2">Auto-Sync</h3>
+                    <p className="text-sm text-white/80">
+                      Automatically sync your latest professional updates from LinkedIn and other platforms
+                    </p>
+                  </div>
+                  
+                  <div className="border-2 border-foreground/40 bg-background/50 backdrop-blur-sm p-6">
+                    <Star className="w-8 h-8 text-orange-accent mx-auto mb-4" />
+                    <h3 className="font-semibold text-white mb-2">Smart Categorization</h3>
+                    <p className="text-sm text-white/80">
+                      AI-powered categorization and tagging for better component organization
+                    </p>
+                  </div>
+                  
+                  <div className="border-2 border-foreground/40 bg-background/50 backdrop-blur-sm p-6">
+                    <Target className="w-8 h-8 text-orange-accent mx-auto mb-4" />
+                    <h3 className="font-semibold text-white mb-2">Optimization</h3>
+                    <p className="text-sm text-white/80">
+                      Optimize components for specific job requirements and industry standards
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

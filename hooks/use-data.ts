@@ -38,11 +38,17 @@ export function useComponents() {
   useEffect(() => {
     async function fetchComponents() {
       try {
+        console.log('🔔 useComponents - fetching /api/components')
         const response = await fetch('/api/components')
-        if (!response.ok) throw new Error('Failed to fetch components')
+        if (!response.ok) {
+          const text = await response.text().catch(() => '')
+          throw new Error(`Failed to fetch components: ${response.status} ${response.statusText} ${text}`)
+        }
         const data = await response.json()
+        console.log('🔔 useComponents - received data, length:', Array.isArray(data) ? data.length : 'non-array')
         setComponents(data)
       } catch (err) {
+        console.error('useComponents error:', err)
         setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
         setLoading(false)
