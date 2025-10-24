@@ -4,8 +4,59 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Zap, Target, Sparkles, FileText, BarChart3, Brain } from "lucide-react"
 import Link from "next/link"
 import { LinkedInSignIn } from "@/components/linkedin-signin"
+import { useEffect } from "react"
 
 export function LandingPage() {
+  useEffect(() => {
+    const texts = [
+      "My name is Bob",
+      "Give me the job", 
+      "I need money chop chop"
+    ];
+
+    function typeText(elementId: string, text: string, delay = 0, callback?: () => void) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      
+      setTimeout(() => {
+        let i = 0;
+        el.textContent = '';
+        el.classList.add('typing');
+        const interval = setInterval(() => {
+          el.textContent += text[i];
+          i++;
+          if (i === text.length) {
+            clearInterval(interval);
+            el.classList.remove('typing');
+            if (callback) callback();
+          }
+        }, 100);
+      }, delay);
+    }
+
+    function startTypingSequence() {
+      // Clear all text first
+      document.getElementById("line1")!.textContent = '';
+      document.getElementById("line2")!.textContent = '';
+      document.getElementById("line3")!.textContent = '';
+      
+      // Start typing sequence
+      typeText("line1", texts[0], 0, () => {
+        typeText("line2", texts[1], 500, () => {
+          typeText("line3", texts[2], 500, () => {
+            // Restart the sequence after a pause
+            setTimeout(() => {
+              startTypingSequence();
+            }, 2000);
+          });
+        });
+      });
+    }
+
+    // Start the initial typing sequence
+    startTypingSequence();
+  }, []);
+
   return (
     <div className="min-h-screen relative overflow-hidden video-content-with-scroll">
       {/* Scattered pixelated elements */}
@@ -41,33 +92,26 @@ export function LandingPage() {
 
       {/* Hero Section */}
       <section className="h-screen flex items-center px-8 sm:px-12 lg:px-16 relative">
-        <div className="max-w-7xl text-left space-y-8 py-12">
-          <div className="space-y-6">
-            <h1 className="text-3xl sm:text-6xl font-bold tracking-tight text-white leading-tight">
+        <div className="max-w-7xl text-left space-y-2 py-4">
+          <div className="space-y-2">
+            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
               <span className="glitch-text" data-text="AI VIẾT CV GIÚP BẠN?">AI VIẾT CV GIÚP BẠN?</span>
             </h1>
-            <h2 className="text-3xl sm:text-6xl font-bold tracking-tight text-white leading-tight relative">
+            <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight relative -mt-3">
               AI VIẾT CV GIÚP BẠN.
-              <div className="absolute bottom-0 left-0 w-3/4 h-1 bg-white border-dashed border-t-2 border-white"></div>
+              <img src="/dash.png" alt="dash" className="absolute -bottom-7 left-48 w-full h-4 object-contain" />
             </h2>
-            <p className="text-lg text-gray-300 max-w-2xl font-mono">
+            <p className="text-sm text-gray-300 max-w-2xl font-mono mt-5">
               From PiX.stdio | Da Nang, Vietnam
             </p>
           </div>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-6 pt-8">
+          <div className="flex flex-col sm:flex-row gap-2 pt-2">
             <LinkedInSignIn />
-            <Button variant="ghost" className="text-white font-mono text-lg hover:bg-white/10">
-              Cancel
-            </Button>
+            <LinkedInSignIn variant="pink" />
           </div>
         </div>
-
-        {/* Additional pixelated elements */}
-        <div className="absolute top-20 right-10 pixel-arrow"></div>
-        <div className="absolute bottom-20 left-10 pixel-plus"></div>
-        <div className="absolute top-1/2 right-5 pixel-x"></div>
       </section>
 
       {/* Features Section */}
@@ -75,6 +119,34 @@ export function LandingPage() {
         {/* Background layer */}
         <div className="absolute inset-0 bg-[#ff5f94] opacity-100"></div>
         <div className="max-w-7xl mx-auto relative z-10">
+          {/* Big line */}
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-6xl font-bold text-black leading-tight">
+              Let magiCV earn your dream job!
+            </h2>
+          </div>
+          
+          {/* Gif and CV box section */}
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-8 mb-16">
+            <div className="flex-shrink-0">
+              <img src="/tired-office.gif" alt="Tired office worker" className="w-64 h-64 object-cover rounded-lg" />
+            </div>
+            <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-black max-w-md">
+              <div className="space-y-4">
+                <h3 className="text-black font-bold text-xl text-left mb-4">Awesome CV</h3>
+                <div className="text-black font-mono text-lg">
+                  <span className="typing-text" id="line1"></span>
+                </div>
+                <div className="text-black font-mono text-lg">
+                  <span className="typing-text" id="line2"></span>
+                </div>
+                <div className="text-black font-mono text-lg">
+                  <span className="typing-text" id="line3"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             <div className="p-8 border-2 border-black bg-transparent hover:border-gray-600 transition-colors relative">
               <FileText className="mx-auto mb-4 w-12 h-12 text-black" />

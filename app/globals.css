@@ -441,3 +441,24 @@
 .video-loading-notice.hidden {
   display: none;
 }
+
+/* Typing animation */
+.typing-text {
+  display: inline-block;
+  position: relative;
+}
+
+.typing-text.typing::after {
+  content: '|';
+  color: #000;
+  animation: blink-caret 0.75s step-end infinite;
+}
+
+.typing-text::after {
+  content: '';
+}
+
+@keyframes blink-caret {
+  from, to { opacity: 0; }
+  50% { opacity: 1; }
+}

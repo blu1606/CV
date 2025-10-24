@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Linkedin } from 'lucide-react'
 import { useState } from 'react'
 
-export function LinkedInSignIn() {
+export function LinkedInSignIn({ variant = "default" }: { variant?: "default" | "pink" }) {
   const [isLoading, setIsLoading] = useState(false)
   const supabase = createClient()
 
@@ -37,11 +37,11 @@ export function LinkedInSignIn() {
       onClick={handleSignIn}
       disabled={isLoading}
       size="lg"
-      className="w-full font-mono"
-      variant="outline"
+      className={`w-auto px-8 font-mono ${variant === "pink" ? "text-[#ff5f94] hover:bg-[#ff5f94]/10" : ""}`}
+      variant={variant === "pink" ? "ghost" : "outline"}
     >
       <Linkedin className="mr-2 h-5 w-5" />
-      {isLoading ? 'Connecting...' : '> SIGN IN WITH LINKEDIN'}
+      {isLoading ? 'Connecting...' : variant === "pink" ? '> SIGN IN WITH LINKEDIN but in pink' : '> SIGN IN WITH LINKEDIN'}
     </Button>
   )
 }
