@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scroll-Scrub Video Background</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; background: transparent; }
+
+    .bg-video-wrap {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+      background: transparent;
+    }
+    .bg-video-wrap video {
+      position: absolute;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      /* keep this light; heavy filters can hurt perf on some GPUs */
+      filter: brightness(0.8);
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      min-height: 500vh;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: transparent;
+    }
+
+    .section {
+      display: grid;
+      place-items: center;
+      height: 100vh;
+      padding: 2rem;
+      background: transparent;
+    }
+    .card {
+      /* backdrop-filter blur can be expensive; replaced with a lightweight translucent bg */
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 24px 28px;
+      max-width: 840px;
+      width: min(92vw, 840px);
+      /* lighter shadow to reduce paint cost */
+      box-shadow: 0 6px 16px rgba(0,0,0,0.22);
+    }
+    h1, h2, p { margin: 0 0 12px; }
+    h1 { font-size: clamp(28px, 4.5vw, 54px); }
+    h2 { font-size: clamp(22px, 3.2vw, 34px); opacity: 0.9; }
+    p { line-height: 1.6; opacity: 0.9; }
+
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0;
+      background: linear-gradient(90deg, #9ae6b4, #63b3ed);
+      box-shadow: 0 0 10px rgba(99,179,237,0.6);
+      z-index: 10;
+    }
+
+    .notice {
+      position: fixed; right: 12px; bottom: 12px; padding: 10px 12px;
+      border-radius: 10px; font-size: 13px; color: #111;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    }
+    .notice.hidden { display: none; }
+    .btn {
+      display: inline-block; padding: 10px 14px; border-radius: 10px;
+      background: #111; color:#fff; text-decoration: none; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-video-wrap">
+    <video id="bgVideo" preload="auto" muted playsinline webkit-playsinline poster="">
+      <source src="/public/your-video.mp4" type="video/mp4" />
+    </video>
+  </div>
+
+  <div class="progress-bar" id="progressBar"></div>
+
+  <main class="content" id="content">
+    <section class="section">
+      <div class="card">
+        <h1>Scroll điều khiển video nền</h1>
+        <p>Cuộn xuống để tua video. Đầu trang = đầu video. Cuối trang = cuối video. Lướt tới lui, video cũng tua tới lui.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card">
+        <h2>Cách dùng</h2>
+        <p>Đây là video stock miễn phí từ Coverr (tropical beach). Bạn có thể thay bằng video khác nếu muốn.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card">
+        <h2>Demo kết thúc</h2>
+        <p>Kéo xuống gần cuối trang: video sẽ tới gần cuối.</p>
+        <a class="btn" href="#top">Lên đầu trang</a>
+      </div>
+    </section>
+  </main>
+
+  <div class="notice" id="notice">Đang tải metadata video…</div>
+
+  <script>
+    (function() {
+      const video = document.getElementById('bgVideo');
+      const progressBar = document.getElementById('progressBar');
+      const notice = document.getElementById('notice');
+
+      let duration = 0;
+      let ready = false;
+
+      // Cache docHeight, update on resize or content mutation
+      let docHeight = 0;
+      function computeDocHeight() {
+        docHeight = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      }
+
+      // Smooth scrubbing via lerp for fewer random-access seeks
+      let targetProgress = 0;   // 0..1 desired progress from scroll
+      let rafId = 0;
+      const SEEK_EPS = 0.05;    // seek only if > ~50ms at 1s video
+      const LERP = 0.18;        // smoothing factor (0..1)
+
+      function getScrollProgress() {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        return Math.min(1, Math.max(0, scrollTop / docHeight));
+      }
+
+      function updateProgressBar(p) {
+        progressBar.style.width = (p * 100) + '%';
+      }
+
+      function tick() {
+        if (!ready || duration <= 0) {
+          rafId = requestAnimationFrame(tick);
+          return;
+        }
+        // Smooth currentTime toward target
+        const targetTime = targetProgress * duration;
+        const cur = video.currentTime;
+        const diff = targetTime - cur;
+        if (Math.abs(diff) > SEEK_EPS) {
+          // Lerp to reduce jank from frequent random seeks
+          const next = cur + diff * LERP;
+          try { video.currentTime = Math.max(0, Math.min(duration, next)); } catch (_) {}
+        }
+        rafId = requestAnimationFrame(tick);
+      }
+
+      function onScroll() {
+        targetProgress = getScrollProgress();
+        updateProgressBar(targetProgress);
+      }
+
+      function ensurePaused() {
+        if (!video.paused) {
+          try { video.pause(); } catch (_) {}
+        }
+      }
+
+      function onReady() {
+        duration = video.duration || 0;
+        ready = duration > 0 && Number.isFinite(duration);
+        if (ready) {
+          notice.classList.add('hidden');
+          ensurePaused();
+          computeDocHeight();
+          targetProgress = getScrollProgress();
+          updateProgressBar(targetProgress);
+          if (!rafId) rafId = requestAnimationFrame(tick);
+        } else {
+          notice.textContent = 'Không đọc được thời lượng video.';
+        }
+      }
+
+      // Metadata hooks
+      video.addEventListener('loadedmetadata', onReady, { once: true });
+      video.addEventListener('durationchange', () => { if (!ready && Number.isFinite(video.duration) && video.duration > 0) onReady(); });
+
+      // Start loading ASAP
+      if (video.readyState >= 1 && Number.isFinite(video.duration) && video.duration > 0) {
+        onReady();
+      } else {
+        try { video.load(); } catch (_) {}
+      }
+
+      // Listeners
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', () => { computeDocHeight(); onScroll(); });
+
+      // iOS nudge
+      ["touchstart", "click", "keydown"].forEach(evt => {
+        window.addEventListener(evt, () => {
+          if (!ready && Number.isFinite(video.duration) && video.duration > 0) onReady();
+          ensurePaused();
+          onScroll();
+        }, { once: true, passive: true });
+      });
+
+      // Initial measurements
+      computeDocHeight();
+      onScroll();
+      rafId = requestAnimationFrame(tick);
+    })();
+  </script>
+</body>
+</html>
